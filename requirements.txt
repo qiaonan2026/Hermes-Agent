@@ -1,0 +1,42 @@
+# Hermes-Agent智能客服系统依赖
+
+# 核心框架
+hermes-agent>=0.8.0
+
+# API客户端
+openai>=1.0.0
+anthropic>=0.18.0
+httpx>=0.25.0
+
+# 消息平台SDK
+feishu-sdk>=1.0.0
+python-telegram-bot>=20.0
+discord.py>=2.3.0
+slack-sdk>=3.25.0
+
+# 向量搜索和记忆
+chromadb>=0.4.0
+sentence-transformers>=2.2.0
+faiss-cpu>=1.7.0
+
+# 数据处理
+pydantic>=2.0.0
+pyyaml>=6.0
+python-dotenv>=1.0.0
+
+# 监控和日志
+prometheus-client>=0.19.0
+structlog>=23.0.0
+
+# 安全
+cryptography>=41.0.0
+python-jose>=3.3.0
+
+# 测试
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+pytest-cov>=4.1.0
+
+# 工具
+click>=8.1.0
+rich>=13.0.0

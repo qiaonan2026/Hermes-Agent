@@ -1,0 +1,375 @@
+# Hermes-Agent智能客服系统主配置文件
+
+# ========== 基础配置 ==========
+hermes:
+  version: "0.8.0"
+  profile: "customer_service"
+  workspace: "./workspace/customer_service"
+  
+  # 日志配置
+  logging:
+    level: "${LOG_LEVEL:INFO}"
+    format: "json"
+    file: "./logs/hermes.log"
+    max_size: "100MB"
+    backup_count: 10
+
+# ========== API配置 ==========
+api:
+  # 主API提供商
+  primary_provider: "openrouter"
+  
+  # OpenRouter配置
+  openrouter:
+    api_key: "${OPENROUTER_API_KEY}"
+    base_url: "https://openrouter.ai/api/v1"
+    default_model: "anthropic/claude-3-sonnet"
+    timeout: 30
+    max_retries: 3
+    
+  # Anthropic配置
+  anthropic:
+    api_key: "${ANTHROPIC_API_KEY}"
+    default_model: "claude-3-sonnet-20240229"
+    timeout: 30
+    max_retries: 3
+    
+  # OpenAI配置（备用）
+  openai:
+    api_key: "${OPENAI_API_KEY}"
+    default_model: "gpt-3.5-turbo"
+    timeout: 30
+
+# ========== 消息平台Gateway配置 ==========
+gateways:
+  # 飞书配置（主要使用）
+  feishu:
+    enabled: true
+    app_id: "${FEISHU_CUSTOMER_APP_ID}"
+    app_secret: "${FEISHU_CUSTOMER_APP_SECRET}"
+    encrypt_key: "${FEISHU_ENCRYPT_KEY:}"
+    verification_token: "${FEISHU_VERIFICATION_TOKEN:}"
+    event_callback: "/webhook/feishu"
+    message_types:
+      - "text"
+      - "post"
+      - "interactive"
+    timeout: 30
+    
+  # Telegram配置（可选）
+  telegram:
+    enabled: false
+    bot_token: "${TELEGRAM_BOT_TOKEN}"
+    webhook_url: "https://api.example.com/webhook/telegram"
+    timeout: 30
+    parse_mode: "MarkdownV2"
+    
+  # Discord配置（可选）
+  discord:
+    enabled: false
+    bot_token: "${DISCORD_BOT_TOKEN}"
+    guild_id: "${DISCORD_GUILD_ID}"
+    intents:
+      - "messages"
+      - "guilds"
+      - "message_content"
+      
+  # Slack配置（可选）
+  slack:
+    enabled: false
+    app_token: "${SLACK_APP_TOKEN}"
+    bot_token: "${SLACK_BOT_TOKEN}"
+    signing_secret: "${SLACK_SIGNING_SECRET}"
+    socket_mode: true
+
+# ========== 记忆系统配置 ==========
+memory:
+  # Honcho用户建模
+  honcho:
+    enabled: true
+    dialectical_mode: true
+    cross_session_memory: true
+    user_profile_schema: "./config/user_profile_schema.json"
+    
+  # RetainDB向量搜索
+  retaindb:
+    enabled: true
+    db_path: "${VECTOR_DB_PATH:./data/vectors}"
+    embedding_model: "sentence-transformers/all-MiniLM-L6-v2"
+    similarity_threshold: 0.85
+    index_params:
+      n_clusters: 100
+      n_probe: 10
+      
+  # Memory Fence隔离
+  memory_fence:
+    enabled: true
+    isolation_tags:
+      - "customer_id"
+      - "session_id"
+    access_control: true
+    
+  # MEMORY.md知识库
+  knowledge_base:
+    path: "./workspace/customer_service/MEMORY.md"
+    auto_update: true
+    update_interval: 3600
+
+# ========== 技能系统配置 ==========
+skills:
+  # 技能自动生成
+  auto_generate: true
+  generation_trigger: 15  # 每15个任务评估一次
+  
+  # 模式识别
+  pattern_recognition:
+    min_occurrences: 3
+    similarity_threshold: 0.8
+    clustering_algorithm: "kmeans"
+    
+  # 技能优化
+  optimization:
+    enabled: true
+    interval: 3600  # 每小时优化一次
+    success_rate_threshold: 0.8
+    nudge_interval: 300
+    compression_threshold: 0.7
+    
+  # 技能审核
+  review:
+    required: true
+    queue_path: "./data/skill_review_queue"
+    notification:
+      enabled: true
+      channels:
+        - "slack"
+        
+  # 技能存储
+  storage:
+    path: "./workspace/customer_service/skills"
+    format: "markdown"
+
+# ========== 训练与优化配置 ==========
+training:
+  # Atropos RL环境
+  atropos:
+    enabled: true
+    reward_function: "./config/reward_function.py"
+    state_space:
+      - "customer_sentiment"
+      - "issue_complexity"
+      - "conversation_length"
+    action_space:
+      - "reply"
+      - "escalate"
+      - "ask_clarification"
+    learning_rate: 0.001
+    discount_factor: 0.95
+    
+  # 轨迹导出
+  trajectory:
+    export_enabled: true
+    export_path: "${TRAJECTORY_EXPORT_PATH:./data/trajectories}"
+    format: "jsonl"
+    anonymize: true
+    anonymization_rules:
+      - "email"
+      - "phone"
+      - "name"
+      - "address"
+
+# ========== 子代理配置 ==========
+subagent:
+  max_concurrent: 3
+  timeout: 30
+  
+  # 委托触发条件
+  delegation:
+    complexity_threshold: 0.7
+    max_retries: 2
+    
+  # 子代理类型
+  types:
+    - name: "order_query"
+      model: "gpt-3.5-turbo"
+      skills:
+        - "query_order_status"
+        - "check_inventory"
+    - name: "complaint_handler"
+      model: "claude-3-sonnet"
+      skills:
+        - "handle_complaint"
+        - "escalate_issue"
+    - name: "tech_support"
+      model: "claude-3-sonnet"
+      skills:
+        - "diagnose_issue"
+        - "provide_solution"
+
+# ========== 安全配置 ==========
+security:
+  # 沙箱隔离
+  sandbox:
+    enabled: true
+    backend: "docker"
+    image: "python:3.11-slim"
+    cpu_limit: 1.0
+    memory_limit: 512  # MB
+    network_enabled: false
+    timeout: 30
+    
+  # 提示注入检测
+  prompt_injection:
+    enabled: true
+    scan_patterns:
+      - "ignore previous instructions"
+      - "disregard all above"
+      - "system override"
+    action: "reject"
+    
+  # 敏感信息过滤
+  sensitive_filter:
+    enabled: true
+    patterns:
+      - type: "email"
+        pattern: "\\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,}\\b"
+      - type: "phone"
+        pattern: "\\b\\d{3}[-.]?\\d{3}[-.]?\\d{4}\\b"
+      - type: "credit_card"
+        pattern: "\\b\\d{4}[-\\s]?\\d{4}[-\\s]?\\d{4}[-\\s]?\\d{4}\\b"
+    replacement: "[REDACTED]"
+    
+  # 命令审批
+  command_approval:
+    enabled: true
+    whitelist:
+      - "query_*"
+      - "get_*"
+      - "list_*"
+    blacklist:
+      - "delete_*"
+      - "remove_*"
+      - "exec_*"
+
+# ========== 模型路由配置 ==========
+model_router:
+  enabled: true
+  
+  # 复杂度阈值
+  complexity_threshold:
+    low: 0.3
+    medium: 0.7
+    high: 1.0
+    
+  # 模型映射
+  models:
+    low:
+      provider: "openai"
+      model: "gpt-3.5-turbo"
+      max_tokens: 1000
+    medium:
+      provider: "anthropic"
+      model: "claude-3-sonnet"
+      max_tokens: 2000
+    high:
+      provider: "anthropic"
+      model: "claude-3-opus"
+      max_tokens: 4000
+      
+  # 备用模型
+  fallback:
+    enabled: true
+    model: "gpt-3.5-turbo"
+
+# ========== MCP服务器配置 ==========
+mcp:
+  enabled: true
+  
+  servers:
+    - name: "crm"
+      url: "${MCP_CRM_URL}"
+      auth:
+        type: "oauth2.1"
+        client_id: "${MCP_CLIENT_ID}"
+        client_secret: "${MCP_CLIENT_SECRET}"
+        scopes:
+          - "read:customers"
+          - "write:customers"
+      tools:
+        - "crm_get_customer"
+        - "crm_update_customer"
+        - "crm_create_ticket"
+        
+    - name: "order"
+      url: "${MCP_ORDER_URL}"
+      auth:
+        type: "oauth2.1"
+        client_id: "${MCP_CLIENT_ID}"
+        client_secret: "${MCP_CLIENT_SECRET}"
+        scopes:
+          - "read:orders"
+          - "write:orders"
+      tools:
+        - "order_query"
+        - "order_update"
+        - "order_cancel"
+
+# ========== 监控配置 ==========
+monitoring:
+  # Prometheus指标
+  prometheus:
+    enabled: true
+    port: "${PROMETHEUS_PORT:9090}"
+    metrics:
+      - "skill_success_rate"
+      - "response_time"
+      - "customer_satisfaction"
+      - "active_sessions"
+      
+  # 告警规则
+  alerts:
+    - name: "low_skill_success_rate"
+      metric: "skill_success_rate"
+      threshold: 0.8
+      severity: "critical"
+      notification:
+        channels:
+          - "slack"
+          - "email"
+          
+    - name: "high_response_time"
+      metric: "response_time"
+      threshold: 5000  # 毫秒
+      severity: "warning"
+      
+  # Grafana面板
+  grafana:
+    enabled: true
+    dashboards_path: "./config/grafana_dashboards"
+
+# ========== Profile配置 ==========
+profiles:
+  customer_service:
+    name: "智能客服"
+    description: "处理客户咨询、自动学习优化回复质量"
+    
+    # 工作目录
+    workspace: "./workspace/customer_service"
+    
+    # SOUL.md人格文件
+    soul_file: "./workspace/customer_service/SOUL.md"
+    
+    # MEMORY.md知识库
+    memory_file: "./workspace/customer_service/MEMORY.md"
+    
+    # 技能目录
+    skills_dir: "./workspace/customer_service/skills"
+    
+    # 日志目录
+    logs_dir: "./logs/customer_service"
+    
+    # 隔离配置
+    isolation:
+      enabled: true
+      memory_fence: true
+      sandbox: true

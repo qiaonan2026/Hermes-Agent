@@ -1,0 +1,111 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Customer Profile Schema",
+  "description": "智能客服客户画像数据模型",
+  "type": "object",
+  "properties": {
+    "customer_id": {
+      "type": "string",
+      "description": "客户唯一标识"
+    },
+    "open_id": {
+      "type": "string",
+      "description": "飞书Open ID"
+    },
+    "name": {
+      "type": "string",
+      "description": "客户姓名"
+    },
+    "company": {
+      "type": "string",
+      "description": "公司名称"
+    },
+    "industry": {
+      "type": "string",
+      "enum": ["互联网", "金融", "教育", "医疗", "制造", "零售", "其他"],
+      "description": "所属行业"
+    },
+    "company_size": {
+      "type": "string",
+      "enum": ["1-10人", "11-50人", "51-200人", "201-500人", "500人以上"],
+      "description": "公司规模"
+    },
+    "products": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "使用的产品列表"
+    },
+    "subscription_level": {
+      "type": "string",
+      "enum": ["free", "basic", "pro", "enterprise"],
+      "description": "订阅等级"
+    },
+    "activity_level": {
+      "type": "string",
+      "enum": ["low", "medium", "high"],
+      "description": "活跃度"
+    },
+    "usage_frequency": {
+      "type": "string",
+      "enum": ["low", "medium", "high"],
+      "description": "使用频率"
+    },
+    "preferred_features": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "偏好功能列表"
+    },
+    "consultation_frequency": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "咨询频率"
+    },
+    "preferred_channel": {
+      "type": "string",
+      "enum": ["feishu", "email", "phone"],
+      "description": "偏好沟通渠道"
+    },
+    "response_style": {
+      "type": "string",
+      "enum": ["detailed", "concise"],
+      "description": "回复风格偏好"
+    },
+    "preferred_contact_time": {
+      "type": "string",
+      "enum": ["work_hours", "anytime"],
+      "description": "偏好联系时间"
+    },
+    "language_preference": {
+      "type": "string",
+      "enum": ["zh", "en"],
+      "description": "语言偏好"
+    },
+    "total_consultations": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "总咨询次数"
+    },
+    "resolved_issues": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "已解决问题数"
+    },
+    "satisfaction_score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 5,
+      "description": "满意度评分"
+    },
+    "complaint_count": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "投诉次数"
+    }
+  },
+  "required": ["customer_id", "open_id"],
+  "additionalProperties": true
+}
